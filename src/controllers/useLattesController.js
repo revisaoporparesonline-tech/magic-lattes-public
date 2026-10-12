@@ -40,20 +40,29 @@ export function useLattesController() {
       }
 
       // 3. Execução das regras de negócio pelo Model
-      const { blob, totalInseridos } = mergeProducoesIntoLattes(originalXml, producoes);
+      const { blob, totalInseridos, totalIgnorados } = mergeProducoesIntoLattes(
+        originalXml,
+        producoes
+      );
 
       // 4. Download no navegador
       const downloadUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = downloadUrl;
-      a.download = 'curriculo_atualizado.xml';
+      a.download = 'lattes_novos_itens.xml';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(downloadUrl);
 
       setStatusType('success');
-      setStatusMessage(`${totalInseridos} trabalhos integrados com sucesso! O XML já foi baixado.`);
+      const ignoradosMsg =
+        totalIgnorados > 0
+          ? ` (${totalIgnorados} já registrado${totalIgnorados > 1 ? 's' : ''} ignorado${totalIgnorados > 1 ? 's' : ''})`
+          : '';
+      setStatusMessage(
+        `${totalInseridos} novo${totalInseridos > 1 ? 's' : ''} item${totalInseridos > 1 ? 'ns' : ''} exportado${totalInseridos > 1 ? 's' : ''} com sucesso${ignoradosMsg}! O XML já foi baixado.`
+      );
     } catch (error) {
       setStatusType('error');
       setStatusMessage(error.message || 'Ocorreu um erro ao processar o arquivo.');

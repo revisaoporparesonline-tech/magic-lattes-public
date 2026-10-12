@@ -22,7 +22,7 @@ export function LattesView({
             Lattes Sync & Merger
           </h1>
           <p className="mt-2 text-sm text-slate-600">
-            Atualize seu currículo Lattes incorporando publicações em lote sem corromper o cabeçalho oficial do CNPq.
+            Exporte um XML enxuto contendo apenas as produções ainda não registradas no seu currículo Lattes, pronto para importação no CNPq.
           </p>
         </header>
 
@@ -31,7 +31,7 @@ export function LattesView({
           {/* Passo 1: Upload XML */}
           <section>
             <label className="block text-sm font-semibold text-slate-800 mb-2">
-              1. Selecione o XML exportado da Plataforma Lattes
+              1. Selecione o XML atual exportado da Plataforma Lattes
             </label>
             <div className="flex items-center justify-center w-full">
               <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer bg-slate-50 border-slate-300 hover:bg-slate-100 transition-colors">
@@ -70,7 +70,7 @@ export function LattesView({
               rows={10}
               value={jsonText}
               onChange={(e) => setJsonText(e.target.value)}
-              placeholder='[ { "tipo": "TRABALHO-EM-EVENTOS", ... } ]'
+              placeholder='[ { "tipo": "TRABALHO-EM-EVENTOS", ... }, { "tipo": "DEMAIS-TRABALHOS", ... } ]'
               className="w-full font-mono text-xs p-3 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             />
           </section>
@@ -85,7 +85,7 @@ export function LattesView({
                 : 'bg-blue-600 hover:bg-blue-700 active:scale-[0.99]'
             }`}
           >
-            {isLoading ? 'Mesclando e validando...' : 'Mesclar e Baixar XML Atualizado'}
+            {isLoading ? 'Filtrando e gerando XML...' : 'Exportar XML Apenas com Novos Itens'}
           </button>
 
           {/* Feedback de Status */}
