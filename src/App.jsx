@@ -1,4 +1,3 @@
-import React from 'react';
 import { useLattesController } from './controllers/useLattesController';
 import { LattesView } from './views/LattesView';
 
