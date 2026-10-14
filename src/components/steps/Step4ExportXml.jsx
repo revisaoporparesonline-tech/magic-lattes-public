@@ -5,6 +5,9 @@ export function Step4ExportXml({
   handleOpenBatchesStep,
   goToStep,
   onOpenCoffee,
+  onOpenTutorial,
+  enviarRevisaoOnline = false,
+  setEnviarRevisaoOnline,
 }) {
   if (!exportResult) return null;
 
@@ -19,9 +22,23 @@ export function Step4ExportXml({
             Arquivo <code className="font-mono text-xs bg-slate-100 px-1.5 py-0.5 rounded">lattes_novos_itens.xml</code> gerado em <code className="font-mono text-xs bg-slate-100 px-1.5 py-0.5 rounded">ISO-8859-1</code> contendo exclusivamente os <strong>{exportResult.totalInseridos}</strong> itens aprovados.
           </p>
         </div>
-        <span className="px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold">
-          Pronto para Importar no CNPq
-        </span>
+
+        <div className="flex items-center gap-2">
+          {onOpenTutorial && (
+            <button
+              type="button"
+              onClick={() => onOpenTutorial('import')}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-all cursor-pointer"
+            >
+              <span>📖</span>
+              <span>Como importar no Lattes?</span>
+            </button>
+          )}
+
+          <span className="px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold">
+            Pronto para o CNPq
+          </span>
+        </div>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
@@ -49,6 +66,39 @@ export function Step4ExportXml({
         </pre>
       </div>
 
+      {/* Opção para Enviar RevisãoOnline */}
+      {setEnviarRevisaoOnline && (
+        <div className="p-4 rounded-xl border border-indigo-200 bg-indigo-50/70 space-y-2">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-bold text-indigo-950">
+                <input
+                  type="checkbox"
+                  checked={enviarRevisaoOnline}
+                  onChange={(e) => setEnviarRevisaoOnline(e.target.checked)}
+                  className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300"
+                />
+                <span>Enviar RevisãoOnline</span>
+              </label>
+              <p className="text-xs text-indigo-800 mt-0.5">
+                Marque esta opção caso deseje enviar estas publicações em lote para a API do RevisãoOnline (habilita o Passo 5).
+              </p>
+            </div>
+
+            {enviarRevisaoOnline && (
+              <button
+                type="button"
+                onClick={handleOpenBatchesStep}
+                className="py-2 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
+              >
+                Avançar para Etapa 5: RevisãoOnline →
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Card de Apoio (Me pague um café) */}
       {onOpenCoffee && (
         <div className="p-4 rounded-xl border border-amber-200 bg-amber-50/70 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -80,7 +130,18 @@ export function Step4ExportXml({
         >
           ← Voltar para Revisão de Conflitos
         </button>
+
         <div className="flex flex-wrap items-center gap-3">
+          {onOpenTutorial && (
+            <button
+              type="button"
+              onClick={() => onOpenTutorial('import')}
+              className="py-3 px-5 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-sm transition-all cursor-pointer"
+            >
+              📖 Tutorial: Como Importar no Lattes
+            </button>
+          )}
+
           <button
             type="button"
             onClick={handleDownloadXml}
@@ -88,16 +149,18 @@ export function Step4ExportXml({
           >
             ⬇ Baixar lattes_novos_itens.xml
           </button>
-          <button
-            type="button"
-            onClick={handleOpenBatchesStep}
-            className="py-3 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-sm transition-all cursor-pointer"
-          >
-            Avançar para Etapa 5: Lotes por Ano (API) →
-          </button>
+
+          {enviarRevisaoOnline && (
+            <button
+              type="button"
+              onClick={handleOpenBatchesStep}
+              className="py-3 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-sm transition-all cursor-pointer"
+            >
+              Avançar para Etapa 5: RevisãoOnline →
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
 }
-

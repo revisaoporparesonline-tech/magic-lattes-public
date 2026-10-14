@@ -6,6 +6,7 @@ export const PIX_CONFIG = {
   tipoChave: 'E-mail',
   beneficiario: 'Marcio',
   cidade: 'Porto Alegre',
+  githubUrl: 'https://github.com/revisaoporparesonline-tech/magic-lattes-public',
   sugestoes: [
     { valor: 5, label: '☕ R$ 5', descricao: 'Um cafezinho expresso' },
     { valor: 10, label: '☕ R$ 10', descricao: 'Café com pão de queijo' },

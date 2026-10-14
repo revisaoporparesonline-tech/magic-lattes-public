@@ -8,6 +8,7 @@ import { Step3ConflictReview } from '../components/steps/Step3ConflictReview';
 import { Step4ExportXml } from '../components/steps/Step4ExportXml';
 import { Step5RemoteBatches } from '../components/steps/Step5RemoteBatches';
 import { CoffeePage } from '../components/coffee/CoffeePage';
+import { LattesTutorialModal } from '../components/tutorial/LattesTutorialModal';
 
 export function LattesView({
   currentStep,
@@ -25,6 +26,8 @@ export function LattesView({
   exportResult,
   handleDownloadXml,
   handleOpenBatchesStep,
+  enviarRevisaoOnline = false,
+  setEnviarRevisaoOnline,
   remoteConfig,
   updateRemoteConfig,
   batchItems,
@@ -47,6 +50,9 @@ export function LattesView({
       typeof window !== 'undefined' &&
       (window.location.hash === '#cafe' || window.location.hash === '#coffee')
   );
+
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
+  const [tutorialTab, setTutorialTab] = useState('export'); // 'export' | 'import'
 
   useEffect(() => {
     const onHashChange = () => {
@@ -75,10 +81,23 @@ export function LattesView({
     }
   };
 
+  const handleOpenTutorial = (tab = 'export') => {
+    setTutorialTab(tab);
+    setIsTutorialOpen(true);
+  };
+
+  const handleCloseTutorial = () => {
+    setIsTutorialOpen(false);
+  };
+
   return (
     <main className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-5xl mx-auto">
-        <AppHeader onOpenCoffee={handleOpenCoffee} isCoffeeOpen={isCoffeeOpen} />
+        <AppHeader
+          onOpenCoffee={handleOpenCoffee}
+          isCoffeeOpen={isCoffeeOpen}
+          onOpenTutorial={handleOpenTutorial}
+        />
 
         {isCoffeeOpen ? (
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
@@ -92,6 +111,7 @@ export function LattesView({
               hasPreprocessedLattes={!!preprocessedLattes}
               hasAnalyzedItems={analyzedItems.length > 0}
               hasExportResult={!!exportResult}
+              enviarRevisaoOnline={enviarRevisaoOnline}
             />
 
             <StatusBanner statusType={statusType} statusMessage={statusMessage} />
@@ -104,6 +124,9 @@ export function LattesView({
                   handleSelectXmlFile={handleSelectXmlFile}
                   handleOpenBatchesStep={handleOpenBatchesStep}
                   goToStep={goToStep}
+                  onOpenTutorial={handleOpenTutorial}
+                  enviarRevisaoOnline={enviarRevisaoOnline}
+                  setEnviarRevisaoOnline={setEnviarRevisaoOnline}
                 />
               )}
 
@@ -116,6 +139,7 @@ export function LattesView({
                   handleOpenBatchesStep={handleOpenBatchesStep}
                   goToStep={goToStep}
                   isLoading={isLoading}
+                  enviarRevisaoOnline={enviarRevisaoOnline}
                 />
               )}
 
@@ -126,6 +150,7 @@ export function LattesView({
                   handlePrepareExport={handlePrepareExport}
                   handleOpenBatchesStep={handleOpenBatchesStep}
                   goToStep={goToStep}
+                  enviarRevisaoOnline={enviarRevisaoOnline}
                 />
               )}
 
@@ -137,6 +162,9 @@ export function LattesView({
                   handleOpenBatchesStep={handleOpenBatchesStep}
                   goToStep={goToStep}
                   onOpenCoffee={handleOpenCoffee}
+                  onOpenTutorial={handleOpenTutorial}
+                  enviarRevisaoOnline={enviarRevisaoOnline}
+                  setEnviarRevisaoOnline={setEnviarRevisaoOnline}
                 />
               )}
 
@@ -165,13 +193,29 @@ export function LattesView({
           </>
         )}
 
+        {/* Modal de Tutorial */}
+        <LattesTutorialModal
+          isOpen={isTutorialOpen}
+          onClose={handleCloseTutorial}
+          initialTab={tutorialTab}
+        />
+
         <footer className="mt-8 text-center text-xs text-slate-400 space-y-1.5">
           <p>
-            Processamento executado 100% no cliente. Envios de lote na Etapa 5 conectam-se diretamente
-            ao endpoint configurado.
+            Processamento executado 100% no cliente.
+            {enviarRevisaoOnline
+              ? ' Envios de lote na Etapa 5 conectam-se diretamente ao endpoint configurado.'
+              : ''}
           </p>
-          <p>
-            Lhe foi útil?{' '}
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-1">
+            <button
+              type="button"
+              onClick={() => handleOpenTutorial('export')}
+              className="text-blue-600 hover:text-blue-800 underline font-medium cursor-pointer"
+            >
+              📖 Tutorial: Exportar e Importar no Lattes
+            </button>
+            <span>•</span>
             <button
               type="button"
               onClick={handleOpenCoffee}
@@ -179,7 +223,7 @@ export function LattesView({
             >
               ☕ Me pague um café com PIX
             </button>
-          </p>
+          </div>
         </footer>
       </div>
     </main>

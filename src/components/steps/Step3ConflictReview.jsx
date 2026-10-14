@@ -4,6 +4,7 @@ export function Step3ConflictReview({
   handlePrepareExport,
   handleOpenBatchesStep,
   goToStep,
+  enviarRevisaoOnline = false,
 }) {
   const conflictItems = analyzedItems.filter((it) => it.status === 'conflict');
   const newItems = analyzedItems.filter((it) => it.status === 'new');
@@ -283,16 +284,18 @@ export function Step3ConflictReview({
           onClick={() => goToStep(2)}
           className="py-2.5 px-4 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 font-semibold text-sm transition-all cursor-pointer"
         >
-          ← Voltar ao JSON
+          ← Voltar para Etapa 2
         </button>
         <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={handleOpenBatchesStep}
-            className="py-2.5 px-4 rounded-xl border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 font-semibold text-sm transition-all cursor-pointer"
-          >
-            Ir para Etapa 5: Lotes por Ano (API) →
-          </button>
+          {enviarRevisaoOnline && (
+            <button
+              type="button"
+              onClick={handleOpenBatchesStep}
+              className="py-2.5 px-4 rounded-xl border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 font-semibold text-sm transition-all cursor-pointer"
+            >
+              Ir para Etapa 5: RevisãoOnline →
+            </button>
+          )}
           <button
             type="button"
             onClick={handlePrepareExport}

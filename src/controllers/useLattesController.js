@@ -13,6 +13,7 @@ export function useLattesController() {
   const [jsonText, setJsonText] = useState('');
   const [analyzedItems, setAnalyzedItems] = useState([]);
   const [exportResult, setExportResult] = useState(null);
+  const [enviarRevisaoOnline, setEnviarRevisaoOnline] = useState(false);
 
   const [statusMessage, setStatusMessage] = useState('');
   const [statusType, setStatusType] = useState('idle'); // 'idle' | 'success' | 'error'
@@ -198,6 +199,7 @@ export function useLattesController() {
       setFeedback('error', 'Selecione e processe o XML do Lattes na Etapa 1 primeiro.');
       return;
     }
+    setEnviarRevisaoOnline(true);
     remoteBatches.syncBatchItems(preprocessedLattes, analyzedItems);
     setCurrentStep(5);
   };
@@ -205,6 +207,7 @@ export function useLattesController() {
   const goToStep = (step) => {
     clearFeedback();
     if (step === 5) {
+      setEnviarRevisaoOnline(true);
       remoteBatches.syncBatchItems(preprocessedLattes, analyzedItems);
     }
     setCurrentStep(step);
@@ -226,6 +229,8 @@ export function useLattesController() {
     exportResult,
     handleDownloadXml,
     handleOpenBatchesStep,
+    enviarRevisaoOnline,
+    setEnviarRevisaoOnline,
     statusMessage,
     statusType,
     isLoading,

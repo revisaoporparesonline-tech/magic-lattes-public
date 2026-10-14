@@ -9,6 +9,7 @@ export function Step2JsonInput({
   handleOpenBatchesStep,
   goToStep,
   isLoading,
+  enviarRevisaoOnline = false,
 }) {
   const [activeTab, setActiveTab] = useState('spreadsheet'); // 'spreadsheet' | 'json'
 
@@ -59,6 +60,7 @@ export function Step2JsonInput({
           handleOpenBatchesStep={handleOpenBatchesStep}
           goToStep={goToStep}
           isLoading={isLoading}
+          enviarRevisaoOnline={enviarRevisaoOnline}
         />
       ) : (
         <div className="space-y-6">
@@ -86,13 +88,15 @@ export function Step2JsonInput({
               ← Voltar para Etapa 1
             </button>
             <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={handleOpenBatchesStep}
-                className="py-2.5 px-4 rounded-xl border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 font-semibold text-sm transition-all cursor-pointer"
-              >
-                Pular para Lotes por Ano (API) →
-              </button>
+              {enviarRevisaoOnline && (
+                <button
+                  type="button"
+                  onClick={handleOpenBatchesStep}
+                  className="py-2.5 px-4 rounded-xl border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 font-semibold text-sm transition-all cursor-pointer"
+                >
+                  Pular para RevisãoOnline (API) →
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => handleAnalyzeJson()}

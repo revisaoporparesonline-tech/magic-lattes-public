@@ -4,16 +4,32 @@ export function Step1PreprocessXml({
   handleSelectXmlFile,
   handleOpenBatchesStep,
   goToStep,
+  onOpenTutorial,
+  enviarRevisaoOnline,
+  setEnviarRevisaoOnline,
 }) {
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-bold text-slate-900">
-          Etapa 1: Pré-processamento do XML do Lattes
-        </h2>
-        <p className="text-sm text-slate-600 mt-1">
-          Selecione o arquivo <code className="font-mono text-xs bg-slate-100 px-1.5 py-0.5 rounded">.xml</code> exportado da Plataforma Lattes para indexar todas as produções já cadastradas.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-bold text-slate-900">
+            Etapa 1: Pré-processamento do XML do Lattes
+          </h2>
+          <p className="text-sm text-slate-600 mt-1">
+            Selecione o arquivo <code className="font-mono text-xs bg-slate-100 px-1.5 py-0.5 rounded">.xml</code> exportado da Plataforma Lattes para indexar todas as produções já cadastradas.
+          </p>
+        </div>
+
+        {onOpenTutorial && (
+          <button
+            type="button"
+            onClick={() => onOpenTutorial('export')}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-800 text-xs font-bold transition-all cursor-pointer self-start sm:self-auto shrink-0"
+          >
+            <span>📖</span>
+            <span>Como exportar do Lattes?</span>
+          </button>
+        )}
       </div>
 
       <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed rounded-xl cursor-pointer bg-slate-50 border-slate-300 hover:bg-slate-100 transition-colors">
@@ -28,7 +44,9 @@ export function Step1PreprocessXml({
               'Clique para selecionar seu arquivo .xml do Lattes'
             )}
           </p>
-          <p className="text-xs text-slate-400 mt-1">Leitura local em ISO-8859-1</p>
+          <p className="text-xs text-slate-400 mt-1">
+            Leitura local em ISO-8859-1 • Se baixou em .zip, extraia o .xml antes de carregar
+          </p>
         </div>
         <input
           type="file"
@@ -80,25 +98,40 @@ export function Step1PreprocessXml({
             </p>
           )}
 
-          <div className="pt-2 flex flex-wrap justify-end gap-3">
-            <button
-              type="button"
-              onClick={handleOpenBatchesStep}
-              className="py-2.5 px-4 rounded-xl border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 font-semibold text-sm transition-all cursor-pointer"
-            >
-              Ir direto para Lotes por Ano (API) →
-            </button>
-            <button
-              type="button"
-              onClick={() => goToStep(2)}
-              className="py-2.5 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-sm transition-all cursor-pointer"
-            >
-              Avançar para Etapa 2: Informar Produções →
-            </button>
+          <div className="pt-2 flex flex-wrap items-center justify-between gap-3">
+            {setEnviarRevisaoOnline && (
+              <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700 bg-white px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-100 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={enviarRevisaoOnline}
+                  onChange={(e) => setEnviarRevisaoOnline(e.target.checked)}
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300"
+                />
+                <span>Enviar RevisãoOnline (habilitar Passo 5)</span>
+              </label>
+            )}
+
+            <div className="flex flex-wrap items-center gap-3 ml-auto">
+              {enviarRevisaoOnline && (
+                <button
+                  type="button"
+                  onClick={handleOpenBatchesStep}
+                  className="py-2.5 px-4 rounded-xl border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 font-semibold text-sm transition-all cursor-pointer"
+                >
+                  Ir direto para RevisãoOnline →
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => goToStep(2)}
+                className="py-2.5 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-sm transition-all cursor-pointer"
+              >
+                Avançar para Etapa 2: Informar Produções →
+              </button>
+            </div>
           </div>
         </div>
       )}
     </div>
   );
 }
-

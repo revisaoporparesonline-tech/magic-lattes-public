@@ -3,7 +3,7 @@ const STEPS = [
   { id: 2, title: '2. Informar Produções', subtitle: 'Planilha ou JSON' },
   { id: 3, title: '3. Revisar Conflitos', subtitle: 'Comparar lado a lado' },
   { id: 4, title: '4. Baixar XML', subtitle: 'Exportar novos itens' },
-  { id: 5, title: '5. Lotes por Ano (API)', subtitle: 'Cadastrar publicações' },
+  { id: 5, title: '5. RevisãoOnline', subtitle: 'Lotes por Ano (API)' },
 ];
 
 export function StepperNav({
@@ -12,11 +12,18 @@ export function StepperNav({
   hasPreprocessedLattes,
   hasAnalyzedItems,
   hasExportResult,
+  enviarRevisaoOnline = false,
 }) {
+  const visibleSteps = enviarRevisaoOnline ? STEPS : STEPS.filter((s) => s.id !== 5);
+
   return (
     <nav aria-label="Etapas" className="mb-8">
-      <ol className="grid grid-cols-1 gap-3 sm:grid-cols-5">
-        {STEPS.map((step) => {
+      <ol
+        className={`grid grid-cols-1 gap-3 ${
+          enviarRevisaoOnline ? 'sm:grid-cols-5' : 'sm:grid-cols-4'
+        }`}
+      >
+        {visibleSteps.map((step) => {
           const isActive = currentStep === step.id;
           const isCompleted =
             (step.id === 1 && hasPreprocessedLattes) ||
@@ -28,7 +35,7 @@ export function StepperNav({
             (step.id === 2 && hasPreprocessedLattes) ||
             (step.id === 3 && hasAnalyzedItems) ||
             (step.id === 4 && hasExportResult) ||
-            (step.id === 5 && hasPreprocessedLattes);
+            (step.id === 5 && hasPreprocessedLattes && enviarRevisaoOnline);
 
           return (
             <li key={step.id}>
@@ -40,10 +47,10 @@ export function StepperNav({
                   isActive
                     ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
                     : isCompleted
-                      ? 'bg-white text-slate-800 border-blue-200 hover:border-blue-400 cursor-pointer'
-                      : canNavigate
-                        ? 'bg-white text-slate-700 border-slate-200 hover:border-blue-300 cursor-pointer'
-                        : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
+                    ? 'bg-white text-slate-800 border-blue-200 hover:border-blue-400 cursor-pointer'
+                    : canNavigate
+                    ? 'bg-white text-slate-700 border-slate-200 hover:border-blue-300 cursor-pointer'
+                    : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -71,4 +78,3 @@ export function StepperNav({
     </nav>
   );
 }
-

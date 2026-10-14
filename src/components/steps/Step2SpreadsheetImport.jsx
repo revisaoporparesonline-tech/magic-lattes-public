@@ -23,6 +23,7 @@ export function Step2SpreadsheetImport({
   handleOpenBatchesStep,
   goToStep,
   isLoading,
+  enviarRevisaoOnline = false,
 }) {
   const [spreadsheetFile, setSpreadsheetFile] = useState(null);
   const [workbook, setWorkbook] = useState(null);
@@ -539,13 +540,15 @@ export function Step2SpreadsheetImport({
         </button>
 
         <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={handleOpenBatchesStep}
-            className="py-2.5 px-4 rounded-xl border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 font-semibold text-sm transition-all cursor-pointer"
-          >
-            Pular para Lotes por Ano (API) →
-          </button>
+          {enviarRevisaoOnline && (
+            <button
+              type="button"
+              onClick={handleOpenBatchesStep}
+              className="py-2.5 px-4 rounded-xl border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 font-semibold text-sm transition-all cursor-pointer"
+            >
+              Pular para RevisãoOnline (API) →
+            </button>
+          )}
 
           {spreadsheetFile && (
             <button
