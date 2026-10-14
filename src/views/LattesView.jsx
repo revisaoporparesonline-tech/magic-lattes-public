@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { AppHeader } from '../components/layout/AppHeader';
 import { StepperNav } from '../components/layout/StepperNav';
 import { StatusBanner } from '../components/layout/StatusBanner';
@@ -6,6 +7,7 @@ import { Step2JsonInput } from '../components/steps/Step2JsonInput';
 import { Step3ConflictReview } from '../components/steps/Step3ConflictReview';
 import { Step4ExportXml } from '../components/steps/Step4ExportXml';
 import { Step5RemoteBatches } from '../components/steps/Step5RemoteBatches';
+import { CoffeePage } from '../components/coffee/CoffeePage';
 
 export function LattesView({
   currentStep,
@@ -16,6 +18,7 @@ export function LattesView({
   jsonText,
   setJsonText,
   handleAnalyzeJson,
+  handleAnalyzeProducoes,
   analyzedItems,
   toggleItemSelection,
   handlePrepareExport,
@@ -39,88 +42,144 @@ export function LattesView({
   statusType,
   isLoading,
 }) {
+  const [isCoffeeOpen, setIsCoffeeOpen] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      (window.location.hash === '#cafe' || window.location.hash === '#coffee')
+  );
+
+  useEffect(() => {
+    const onHashChange = () => {
+      setIsCoffeeOpen(
+        window.location.hash === '#cafe' || window.location.hash === '#coffee'
+      );
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  const handleOpenCoffee = () => {
+    setIsCoffeeOpen(true);
+    if (typeof window !== 'undefined') {
+      window.location.hash = 'cafe';
+    }
+  };
+
+  const handleCloseCoffee = () => {
+    setIsCoffeeOpen(false);
+    if (
+      typeof window !== 'undefined' &&
+      (window.location.hash === '#cafe' || window.location.hash === '#coffee')
+    ) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-5xl mx-auto">
-        <AppHeader />
+        <AppHeader onOpenCoffee={handleOpenCoffee} isCoffeeOpen={isCoffeeOpen} />
 
-        <StepperNav
-          currentStep={currentStep}
-          goToStep={goToStep}
-          hasPreprocessedLattes={!!preprocessedLattes}
-          hasAnalyzedItems={analyzedItems.length > 0}
-          hasExportResult={!!exportResult}
-        />
-
-        <StatusBanner statusType={statusType} statusMessage={statusMessage} />
-
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
-          {currentStep === 1 && (
-            <Step1PreprocessXml
-              xmlFile={xmlFile}
-              preprocessedLattes={preprocessedLattes}
-              handleSelectXmlFile={handleSelectXmlFile}
-              handleOpenBatchesStep={handleOpenBatchesStep}
+        {isCoffeeOpen ? (
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+            <CoffeePage onBack={handleCloseCoffee} />
+          </div>
+        ) : (
+          <>
+            <StepperNav
+              currentStep={currentStep}
               goToStep={goToStep}
+              hasPreprocessedLattes={!!preprocessedLattes}
+              hasAnalyzedItems={analyzedItems.length > 0}
+              hasExportResult={!!exportResult}
             />
-          )}
 
-          {currentStep === 2 && (
-            <Step2JsonInput
-              jsonText={jsonText}
-              setJsonText={setJsonText}
-              handleAnalyzeJson={handleAnalyzeJson}
-              handleOpenBatchesStep={handleOpenBatchesStep}
-              goToStep={goToStep}
-              isLoading={isLoading}
-            />
-          )}
+            <StatusBanner statusType={statusType} statusMessage={statusMessage} />
 
-          {currentStep === 3 && (
-            <Step3ConflictReview
-              analyzedItems={analyzedItems}
-              toggleItemSelection={toggleItemSelection}
-              handlePrepareExport={handlePrepareExport}
-              handleOpenBatchesStep={handleOpenBatchesStep}
-              goToStep={goToStep}
-            />
-          )}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+              {currentStep === 1 && (
+                <Step1PreprocessXml
+                  xmlFile={xmlFile}
+                  preprocessedLattes={preprocessedLattes}
+                  handleSelectXmlFile={handleSelectXmlFile}
+                  handleOpenBatchesStep={handleOpenBatchesStep}
+                  goToStep={goToStep}
+                />
+              )}
 
-          {currentStep === 4 && (
-            <Step4ExportXml
-              exportResult={exportResult}
-              analyzedItems={analyzedItems}
-              handleDownloadXml={handleDownloadXml}
-              handleOpenBatchesStep={handleOpenBatchesStep}
-              goToStep={goToStep}
-            />
-          )}
+              {currentStep === 2 && (
+                <Step2JsonInput
+                  jsonText={jsonText}
+                  setJsonText={setJsonText}
+                  handleAnalyzeJson={handleAnalyzeJson}
+                  handleAnalyzeProducoes={handleAnalyzeProducoes}
+                  handleOpenBatchesStep={handleOpenBatchesStep}
+                  goToStep={goToStep}
+                  isLoading={isLoading}
+                />
+              )}
 
-          {currentStep === 5 && (
-            <Step5RemoteBatches
-              preprocessedLattes={preprocessedLattes}
-              analyzedItems={analyzedItems}
-              exportResult={exportResult}
-              remoteConfig={remoteConfig}
-              updateRemoteConfig={updateRemoteConfig}
-              batchItems={batchItems}
-              toggleBatchItemSelection={toggleBatchItemSelection}
-              toggleYearBatchSelection={toggleYearBatchSelection}
-              updateBatchItemCustomPayload={updateBatchItemCustomPayload}
-              getEffectivePayloadForItem={getEffectivePayloadForItem}
-              isSendingBatch={isSendingBatch}
-              activeSendingYear={activeSendingYear}
-              handleSendSingleItem={handleSendSingleItem}
-              handleSendBatchList={handleSendBatchList}
-              handleCopyYearBatchJson={handleCopyYearBatchJson}
-              handleDownloadYearBatchJson={handleDownloadYearBatchJson}
-              goToStep={goToStep}
-            />
-          )}
-        </div>
+              {currentStep === 3 && (
+                <Step3ConflictReview
+                  analyzedItems={analyzedItems}
+                  toggleItemSelection={toggleItemSelection}
+                  handlePrepareExport={handlePrepareExport}
+                  handleOpenBatchesStep={handleOpenBatchesStep}
+                  goToStep={goToStep}
+                />
+              )}
 
-        <footer className="mt-8 text-center text-xs text-slate-400">
-          Processamento executado 100% no cliente. Envios de lote na Etapa 5 conectam-se diretamente ao endpoint configurado.
+              {currentStep === 4 && (
+                <Step4ExportXml
+                  exportResult={exportResult}
+                  analyzedItems={analyzedItems}
+                  handleDownloadXml={handleDownloadXml}
+                  handleOpenBatchesStep={handleOpenBatchesStep}
+                  goToStep={goToStep}
+                  onOpenCoffee={handleOpenCoffee}
+                />
+              )}
+
+              {currentStep === 5 && (
+                <Step5RemoteBatches
+                  preprocessedLattes={preprocessedLattes}
+                  analyzedItems={analyzedItems}
+                  exportResult={exportResult}
+                  remoteConfig={remoteConfig}
+                  updateRemoteConfig={updateRemoteConfig}
+                  batchItems={batchItems}
+                  toggleBatchItemSelection={toggleBatchItemSelection}
+                  toggleYearBatchSelection={toggleYearBatchSelection}
+                  updateBatchItemCustomPayload={updateBatchItemCustomPayload}
+                  getEffectivePayloadForItem={getEffectivePayloadForItem}
+                  isSendingBatch={isSendingBatch}
+                  activeSendingYear={activeSendingYear}
+                  handleSendSingleItem={handleSendSingleItem}
+                  handleSendBatchList={handleSendBatchList}
+                  handleCopyYearBatchJson={handleCopyYearBatchJson}
+                  handleDownloadYearBatchJson={handleDownloadYearBatchJson}
+                  goToStep={goToStep}
+                />
+              )}
+            </div>
+          </>
+        )}
+
+        <footer className="mt-8 text-center text-xs text-slate-400 space-y-1.5">
+          <p>
+            Processamento executado 100% no cliente. Envios de lote na Etapa 5 conectam-se diretamente
+            ao endpoint configurado.
+          </p>
+          <p>
+            Lhe foi útil?{' '}
+            <button
+              type="button"
+              onClick={handleOpenCoffee}
+              className="text-amber-700 hover:text-amber-800 underline font-semibold cursor-pointer"
+            >
+              ☕ Me pague um café com PIX
+            </button>
+          </p>
         </footer>
       </div>
     </main>

@@ -66,8 +66,44 @@ export function useLattesController() {
     }
   };
 
+  // Analisa lista de produções diretamente (ex: importadas de planilha)
+  const handleAnalyzeProducoes = (producoesList) => {
+    clearFeedback();
+    if (!preprocessedLattes) {
+      setFeedback('error', 'Conclua a Etapa 1 selecionando o XML do Lattes primeiro.');
+      return;
+    }
+
+    if (!Array.isArray(producoesList) || producoesList.length === 0) {
+      setFeedback('error', 'Nenhuma produção encontrada para analisar.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      setJsonText(JSON.stringify(producoesList, null, 2));
+      const items = analyzeProducoesConflicts(preprocessedLattes, producoesList);
+      setAnalyzedItems(items);
+      remoteBatches.syncBatchItems(preprocessedLattes, items);
+      setExportResult(null);
+      setCurrentStep(3);
+      setFeedback(
+        'success',
+        `${items.length} ${items.length === 1 ? 'produção analisada' : 'produções analisadas'} contra o Lattes.`
+      );
+    } catch (error) {
+      setFeedback('error', error.message || 'Ocorreu um erro ao analisar as produções.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Etapa 2 -> Etapa 3: Analisar JSON e cruzar conflitos com o Lattes pré-processado
-  const handleAnalyzeJson = () => {
+  const handleAnalyzeJson = (customList = null) => {
+    if (Array.isArray(customList)) {
+      return handleAnalyzeProducoes(customList);
+    }
+
     clearFeedback();
     if (!preprocessedLattes) {
       setFeedback('error', 'Conclua a Etapa 1 selecionando o XML do Lattes primeiro.');
@@ -183,6 +219,7 @@ export function useLattesController() {
     jsonText,
     setJsonText,
     handleAnalyzeJson,
+    handleAnalyzeProducoes,
     analyzedItems,
     toggleItemSelection,
     handlePrepareExport,

@@ -1,6 +1,6 @@
 const STEPS = [
   { id: 1, title: '1. Pré-processar Lattes', subtitle: 'Ler currículo atual' },
-  { id: 2, title: '2. Informar JSON', subtitle: 'Colar produções' },
+  { id: 2, title: '2. Informar Produções', subtitle: 'Planilha ou JSON' },
   { id: 3, title: '3. Revisar Conflitos', subtitle: 'Comparar lado a lado' },
   { id: 4, title: '4. Baixar XML', subtitle: 'Exportar novos itens' },
   { id: 5, title: '5. Lotes por Ano (API)', subtitle: 'Cadastrar publicações' },

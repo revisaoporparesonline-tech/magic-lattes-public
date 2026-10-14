@@ -93,7 +93,7 @@ export function Step1PreprocessXml({
               onClick={() => goToStep(2)}
               className="py-2.5 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-sm transition-all cursor-pointer"
             >
-              Avançar para Etapa 2: Informar JSON →
+              Avançar para Etapa 2: Informar Produções →
             </button>
           </div>
         </div>

@@ -4,6 +4,7 @@ export function Step4ExportXml({
   handleDownloadXml,
   handleOpenBatchesStep,
   goToStep,
+  onOpenCoffee,
 }) {
   if (!exportResult) return null;
 
@@ -47,6 +48,29 @@ export function Step4ExportXml({
           {exportResult.xmlString}
         </pre>
       </div>
+
+      {onOpenCoffee && (
+        <div className="p-4 rounded-xl border border-amber-200 bg-amber-50/70 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">☕</span>
+            <div>
+              <p className="text-xs font-bold text-amber-950">
+                O Magic Lattes economizou seu tempo com o CNPq?
+              </p>
+              <p className="text-xs text-amber-800">
+                Se este projeto lhe foi útil, considere me pagar um cafézinho via PIX!
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onOpenCoffee}
+            className="py-2 px-4 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-2xs transition-colors cursor-pointer"
+          >
+            ☕ Pagar um café com PIX
+          </button>
+        </div>
+      )}
 
       <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
         <button
