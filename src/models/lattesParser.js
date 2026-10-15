@@ -1,5 +1,6 @@
 import { unescapeXml, getXmlAttr } from '../utils/xmlUtils';
 import { normalizeTitle, normalizeDoi } from '../utils/textSimilarity';
+import { isOrientacaoTipo } from './lattesConstants';
 
 /**
  * Extrai a tag raiz <CURRICULO-VITAE ...> e o bloco mínimo <DADOS-GERAIS ...><RESUMO-CV .../></DADOS-GERAIS>
@@ -128,6 +129,21 @@ export function preprocessLattesXml(xmlString) {
     const doi = getXmlAttr(dbAttrs, 'DOI');
     const natureza = getXmlAttr(dbAttrs, 'NATUREZA');
 
+    const isOrientacao = isOrientacaoTipo(tipoTag);
+
+    const nomeInstituicao =
+      getXmlAttr(dtAttrs, 'NOME-DA-INSTITUICAO') ||
+      getXmlAttr(dtAttrs, 'NOME-INSTITUICAO') ||
+      '';
+    const nomeCurso =
+      getXmlAttr(dtAttrs, 'NOME-DO-CURSO') ||
+      getXmlAttr(dtAttrs, 'NOME-CURSO') ||
+      '';
+    const instituicaoCurso =
+      [nomeCurso, nomeInstituicao].filter(Boolean).join(' - ') ||
+      nomeInstituicao ||
+      nomeCurso;
+
     const veiculo =
       getXmlAttr(dtAttrs, 'TITULO-DO-PERIODICO-OU-REVISTA') ||
       getXmlAttr(dtAttrs, 'NOME-DO-EVENTO') ||
@@ -139,6 +155,20 @@ export function preprocessLattesXml(xmlString) {
       getXmlAttr(dtAttrs, 'INSTITUICAO-PROMOTORA-DO-CURSO') ||
       getXmlAttr(dtAttrs, 'NOME-DO-PROJETO') ||
       getXmlAttr(dtAttrs, 'FINALIDADE') ||
+      instituicaoCurso ||
+      '';
+
+    const nomeOrientado =
+      getXmlAttr(dtAttrs, 'NOME-DO-ORIENTADO') ||
+      getXmlAttr(dtAttrs, 'NOME-DO-ORIENTANDO') ||
+      '';
+    const idOrientado =
+      getXmlAttr(dtAttrs, 'NUMERO-ID-ORIENTADO') ||
+      getXmlAttr(dtAttrs, 'NUMERO-ID-ORIENTANDO') ||
+      '';
+    const tipoOrientacao =
+      getXmlAttr(dtAttrs, 'TIPO-DE-ORIENTACAO') ||
+      getXmlAttr(dtAttrs, 'TIPO-DE-ORIENTACAO-CONCLUIDA') ||
       '';
 
     const volume = getXmlAttr(dtAttrs, 'VOLUME') || getXmlAttr(dtAttrs, 'NUMERO-DE-VOLUMES') || '';
@@ -183,6 +213,41 @@ export function preprocessLattesXml(xmlString) {
       });
     }
 
+    if (autores.length === 0 && (isOrientacao || nomeOrientado)) {
+      const orientadorNome = pesquisador.nomeCompleto || 'Pesquisador';
+      const orientadorCit = pesquisador.nomeCitacao
+        ? pesquisador.nomeCitacao.split(';')[0].trim()
+        : orientadorNome;
+      const funcaoOrientador =
+        tipoOrientacao && tipoOrientacao.toUpperCase().includes('CO')
+          ? 'Co-Orientador'
+          : 'Orientador';
+
+      autores.push(orientadorNome);
+      autoresDetalhados.push({
+        nome_autor: orientadorNome,
+        nome_citacao: orientadorCit,
+        id_lattes: pesquisador.numeroIdentificador || '',
+        email: '',
+        instituicao: nomeInstituicao,
+        ordem: 1,
+        funcao: funcaoOrientador,
+      });
+
+      if (nomeOrientado) {
+        autores.push(nomeOrientado);
+        autoresDetalhados.push({
+          nome_autor: nomeOrientado,
+          nome_citacao: nomeOrientado,
+          id_lattes: idOrientado,
+          email: '',
+          instituicao: nomeInstituicao,
+          ordem: 2,
+          funcao: 'Orientando',
+        });
+      }
+    }
+
     existingItems.push({
       id: `xml-${sequencia}-${existingItems.length}`,
       origem: 'xml',
@@ -203,6 +268,11 @@ export function preprocessLattesXml(xmlString) {
       resumo,
       autores,
       autoresDetalhados,
+      nomeOrientado,
+      idOrientado,
+      tipoOrientacao,
+      nomeInstituicao,
+      nomeCurso,
     });
   }
 
@@ -266,6 +336,10 @@ export function getItemYear(item) {
  */
 export function getItemVeiculo(item) {
   const dt = item.detalhamento || {};
+  const nomeInstituicao = dt['NOME-DA-INSTITUICAO'] || dt['NOME-INSTITUICAO'] || item.instituicao || '';
+  const nomeCurso = dt['NOME-DO-CURSO'] || dt['NOME-CURSO'] || item.curso || '';
+  const instituicaoCurso = [nomeCurso, nomeInstituicao].filter(Boolean).join(' - ') || nomeInstituicao || nomeCurso;
+
   return (
     dt['NOME-DO-EVENTO'] ||
     dt['TITULO-DO-PERIODICO-OU-REVISTA'] ||
@@ -273,6 +347,9 @@ export function getItemVeiculo(item) {
     dt['TITULO-DOS-ANAIS-OU-PROCEEDINGS'] ||
     dt.FINALIDADE ||
     dt['INSTITUICAO-PROMOTORA'] ||
+    instituicaoCurso ||
+    item.veiculo ||
+    item.periodico ||
     ''
   );
 }

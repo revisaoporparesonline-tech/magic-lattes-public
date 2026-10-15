@@ -3,7 +3,7 @@ import {
   normalizeDoi,
   calculateTitleSimilarity,
 } from '../utils/textSimilarity';
-import { SUPPORTED_TIPOS } from './lattesConstants';
+import { SUPPORTED_TIPOS, isOrientacaoTipo } from './lattesConstants';
 import { getItemTitle, getItemYear, getItemVeiculo, getItemDoi } from './lattesParser';
 
 /**
@@ -34,9 +34,45 @@ export function analyzeProducoesConflicts(preprocessedLattes, producoesList) {
     const titulo = getItemTitle(rawItem);
     const ano = getItemYear(rawItem);
     const doi = getItemDoi(rawItem);
-    const veiculo = getItemVeiculo(rawItem);
     const normTitle = normalizeTitle(titulo);
     const normDoi = normalizeDoi(doi);
+    const isOrientacao = isOrientacaoTipo(rawTipo);
+    let veiculo = getItemVeiculo(rawItem);
+    const nomeInstituicao =
+      dt['NOME-DA-INSTITUICAO'] ||
+      dt['NOME-INSTITUICAO'] ||
+      rawItem.instituicao ||
+      '';
+    const nomeCurso =
+      dt['NOME-DO-CURSO'] ||
+      dt['NOME-CURSO'] ||
+      rawItem.curso ||
+      '';
+    if (!veiculo && isOrientacao) {
+      veiculo =
+        [nomeCurso, nomeInstituicao].filter(Boolean).join(' - ') ||
+        nomeInstituicao ||
+        nomeCurso;
+    }
+
+    const nomeOrientado =
+      dt['NOME-DO-ORIENTADO'] ||
+      dt['NOME-DO-ORIENTANDO'] ||
+      rawItem.nomeOrientado ||
+      rawItem.orientando ||
+      rawItem.orientado ||
+      '';
+    const idOrientado =
+      dt['NUMERO-ID-ORIENTADO'] ||
+      dt['NUMERO-ID-ORIENTANDO'] ||
+      rawItem.idOrientado ||
+      '';
+    const tipoOrientacao =
+      dt['TIPO-DE-ORIENTACAO'] ||
+      dt['TIPO-DE-ORIENTACAO-CONCLUIDA'] ||
+      rawItem.tipoOrientacao ||
+      '';
+
     const autores = (rawItem.autores || [])
       .map((a) => a.nome_autor || a.nome || a['NOME-COMPLETO-DO-AUTOR'] || a.citacao || '')
       .filter(Boolean);
@@ -58,6 +94,42 @@ export function analyzeProducoesConflicts(preprocessedLattes, producoesList) {
         ordem,
       };
     });
+
+    if (autores.length === 0 && (isOrientacao || nomeOrientado)) {
+      const orientadorNome = preprocessedLattes?.pesquisador?.nomeCompleto || 'Pesquisador';
+      const orientadorCit = preprocessedLattes?.pesquisador?.nomeCitacao
+        ? preprocessedLattes.pesquisador.nomeCitacao.split(';')[0].trim()
+        : orientadorNome;
+      const orientadorId = preprocessedLattes?.pesquisador?.numeroIdentificador || '';
+      const funcaoOrientador =
+        tipoOrientacao && tipoOrientacao.toUpperCase().includes('CO')
+          ? 'Co-Orientador'
+          : 'Orientador';
+
+      autores.push(orientadorNome);
+      autoresDetalhados.push({
+        nome_autor: orientadorNome,
+        nome_citacao: orientadorCit,
+        id_lattes: orientadorId,
+        email: '',
+        instituicao: nomeInstituicao,
+        ordem: 1,
+        funcao: funcaoOrientador,
+      });
+
+      if (nomeOrientado) {
+        autores.push(nomeOrientado);
+        autoresDetalhados.push({
+          nome_autor: nomeOrientado,
+          nome_citacao: nomeOrientado,
+          id_lattes: idOrientado,
+          email: '',
+          instituicao: nomeInstituicao,
+          ordem: 2,
+          funcao: 'Orientando',
+        });
+      }
+    }
 
     const volume = String(
       dt.VOLUME || dt['NUMERO-DE-VOLUMES'] || rawItem.volume || db.volume || ''
@@ -177,6 +249,11 @@ export function analyzeProducoesConflicts(preprocessedLattes, producoesList) {
       resumo,
       autores,
       autoresDetalhados,
+      nomeOrientado,
+      idOrientado,
+      tipoOrientacao,
+      nomeInstituicao,
+      nomeCurso,
       normTitle,
       normDoi,
       status,

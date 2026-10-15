@@ -89,6 +89,10 @@ export const SPREADSHEET_FIELD_DEFINITIONS = [
       'nome da revista',
       'publicado em',
       'nome do periodico',
+      'instituicao',
+      'curso',
+      'universidade',
+      'faculdade',
     ],
   },
   {
@@ -107,6 +111,11 @@ export const SPREADSHEET_FIELD_DEFINITIONS = [
       'author names',
       'creator',
       'autores do trabalho',
+      'orientando',
+      'orientado',
+      'aluno',
+      'estudante',
+      'orientador',
     ],
   },
   {
@@ -364,6 +373,29 @@ export function mapSpreadsheetTypeToLattes(rawTipo, defaultTipo = 'ARTIGO-PUBLIC
   }
   if (norm.includes('curso') || norm.includes('minicurso')) {
     return 'CURSO-DE-CURTA-DURACAO-MINISTRADO';
+  }
+  if (
+    norm.includes('orientacao') ||
+    norm.includes('orientacoes') ||
+    norm.includes('tcc') ||
+    norm.includes('monografia') ||
+    norm.includes('dissertacao') ||
+    norm.includes('tese') ||
+    norm.includes('iniciacao cientifica') ||
+    norm.includes('pos doutorado') ||
+    norm.includes('mestrado') ||
+    norm.includes('doutorado')
+  ) {
+    if (norm.includes('pos doutorado') || norm.includes('pos-doutorado')) {
+      return 'ORIENTACOES-CONCLUIDAS-PARA-POS-DOUTORADO';
+    }
+    if (norm.includes('doutorado') || norm.includes('tese')) {
+      return 'ORIENTACOES-CONCLUIDAS-PARA-DOUTORADO';
+    }
+    if (norm.includes('mestrado') || norm.includes('dissertacao')) {
+      return 'ORIENTACOES-CONCLUIDAS-PARA-MESTRADO';
+    }
+    return 'OUTRAS-ORIENTACOES-CONCLUIDAS';
   }
 
   return defaultTipo;

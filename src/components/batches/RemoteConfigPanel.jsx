@@ -98,6 +98,7 @@ export function RemoteConfigPanel({
             <option value="evento">Forçar &quot;evento&quot;</option>
             <option value="livro">Forçar &quot;livro&quot;</option>
             <option value="capitulo">Forçar &quot;capitulo&quot;</option>
+            <option value="orientacao">Forçar &quot;orientacao&quot;</option>
             <option value="tecnico">Forçar &quot;tecnico&quot;</option>
           </select>
         </div>
@@ -140,6 +141,7 @@ export function RemoteConfigPanel({
             <option value="evento">Tipo: evento</option>
             <option value="livro">Tipo: livro</option>
             <option value="capitulo">Tipo: capitulo</option>
+            <option value="orientacao">Tipo: orientacao</option>
             <option value="revista">Tipo: revista</option>
             <option value="software">Tipo: software</option>
             <option value="tecnico">Tipo: tecnico</option>

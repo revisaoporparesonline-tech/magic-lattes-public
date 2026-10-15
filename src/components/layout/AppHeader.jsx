@@ -1,4 +1,4 @@
-export function AppHeader({ onOpenCoffee, isCoffeeOpen, onOpenTutorial }) {
+export function AppHeader({ onOpenTutorial }) {
   return (
     <header className="mb-8">
 

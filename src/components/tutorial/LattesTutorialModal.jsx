@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import botaoImportarImg from '../../assets/botao-importar.jpeg';
 
 export function LattesTutorialModal({ isOpen, onClose, initialTab = 'export' }) {
   const [activeTab, setActiveTab] = useState(initialTab); // 'export' | 'import'
@@ -213,18 +214,32 @@ export function LattesTutorialModal({ isOpen, onClose, initialTab = 'export' }) 
                   <span className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
                     3
                   </span>
-                  <div>
+                  <div className="space-y-2">
                     <strong className="text-slate-900">Acesse o menu &quot;Ferramentas&quot; &gt; &quot;Importar&quot;</strong>
                     <p className="text-xs text-slate-600 mt-0.5">
-                      No menu superior do formulário do Lattes, clique em{' '}
+                      No formulário de edição do Lattes, você pode ir em{' '}
                       <span className="font-semibold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-300">
                         Ferramentas
                       </span>{' '}
-                      e depois em{' '}
+                      &gt;{' '}
                       <span className="font-semibold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-300">
                         Importar
-                      </span>.
+                      </span>{' '}
+                      ou clicar diretamente no ícone de <strong>Importar</strong> na barra lateral esquerda (destacado em vermelho abaixo):
                     </p>
+
+                    <div className="mt-2.5 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-xs max-w-sm">
+                      <img
+                        src={botaoImportarImg}
+                        alt="Botão Importar na barra lateral esquerda do Lattes"
+                        className="w-full h-auto block"
+                        loading="lazy"
+                      />
+                      <div className="px-3 py-1.5 bg-slate-100/90 border-t border-slate-200 text-[11px] text-slate-600 flex items-center gap-1.5">
+                        <span>💡</span>
+                        <span>Ícone de importação no menu lateral esquerdo do Lattes</span>
+                      </div>
+                    </div>
                   </div>
                 </li>
 

@@ -1,4 +1,5 @@
 import { normalizeTitle } from '../utils/textSimilarity';
+import { isOrientacaoTipo } from './lattesConstants';
 
 /**
  * Converte a tag de produção do Lattes para o valor de `tipo` esperado pela API remota.
@@ -7,6 +8,9 @@ export function mapLattesTipoToRemote(lattesTipo) {
   const t = String(lattesTipo || '')
     .trim()
     .toUpperCase();
+  if (isOrientacaoTipo(t)) {
+    return 'orientacao';
+  }
   if (
     t === 'ARTIGO-PUBLICADO' ||
     t === 'ARTIGOS-PUBLICADOS' ||
@@ -127,8 +131,11 @@ export function isCurriculumOwnerAuthor(autor, pesquisador) {
  */
 export function buildRemotePublicacaoPayload(item, pesquisador, config = {}) {
   const usuarioId = Number(config.usuarioId) || 1;
+  const isOrientacao = isOrientacaoTipo(item.tipo);
   const funcaoPadrao =
-    String(config.funcaoTitular || 'Autor Principal').trim() || 'Autor Principal';
+    String(
+      config.funcaoTitular || (isOrientacao ? 'Orientador' : 'Autor Principal')
+    ).trim() || (isOrientacao ? 'Orientador' : 'Autor Principal');
   const vincularTitular = config.vincularTitular !== false;
   const forceTipo = config.forceTipo ? String(config.forceTipo).trim() : '';
 
@@ -161,7 +168,7 @@ export function buildRemotePublicacaoPayload(item, pesquisador, config = {}) {
         ordem,
       };
     }
-    return {
+    const baseAutor = {
       nome_autor: autor.nome_autor || '',
       nome_citacao: autor.nome_citacao || '',
       id_lattes: autor.id_lattes || '',
@@ -169,6 +176,12 @@ export function buildRemotePublicacaoPayload(item, pesquisador, config = {}) {
       instituicao: autor.instituicao || '',
       ordem,
     };
+    if (autor.funcao) {
+      baseAutor.funcao = autor.funcao;
+    } else if (isOrientacao) {
+      baseAutor.funcao = 'Orientando';
+    }
+    return baseAutor;
   });
 
   return {

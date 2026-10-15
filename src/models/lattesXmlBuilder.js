@@ -6,7 +6,9 @@ import {
   VALID_MEIO_DIVULGACAO,
   VALID_CLASSIFICACAO_EVENTO,
   VALID_SIM_NAO,
+  isOrientacaoTipo,
 } from './lattesConstants';
+import { isCurriculumOwnerAuthor } from './remotePublicacaoMapper';
 import { preprocessLattesXml } from './lattesParser';
 import { analyzeProducoesConflicts } from './lattesConflictAnalyzer';
 
@@ -50,6 +52,11 @@ export function buildLattesExportFromSelected(envelope, selectedRawItems) {
   const tecDemaisOrganizacaoEvento = [];
   const tecDemaisRelatorioPesquisa = [];
   const tecDemaisOutra = [];
+
+  const oriMestrado = [];
+  const oriDoutorado = [];
+  const oriPosDoutorado = [];
+  const oriOutras = [];
 
   const outraDemaisTrabalhos = [];
 
@@ -405,6 +412,245 @@ export function buildLattesExportFromSelected(envelope, selectedRawItems) {
           `${autoresXml}` +
           `</OUTRA-PRODUCAO-TECNICA>`
       );
+    } else if (
+      rawTipo === 'ORIENTACOES-CONCLUIDAS-PARA-MESTRADO' ||
+      rawTipo === 'ORIENTACAO-CONCLUIDA-DE-MESTRADO'
+    ) {
+      seqAtual += 1;
+      const nomeOrientado =
+        dt['NOME-DO-ORIENTADO'] ||
+        dt['NOME-DO-ORIENTANDO'] ||
+        item.nomeOrientado ||
+        item.autoresDetalhados?.find((a) => a.funcao === 'Orientando')?.nome_autor ||
+        item.autoresDetalhados?.find((a) => !isCurriculumOwnerAuthor(a, envelope?.pesquisador))?.nome_autor ||
+        (autores.length > 1 ? (autores[1].nome || autores[1].nome_autor || autores[1]) : '') ||
+        '';
+      const idOrientado =
+        dt['NUMERO-ID-ORIENTADO'] ||
+        dt['NUMERO-ID-ORIENTANDO'] ||
+        item.idOrientado ||
+        '';
+      const nomeInstituicao =
+        dt['NOME-DA-INSTITUICAO'] ||
+        dt['NOME-INSTITUICAO'] ||
+        item.instituicao ||
+        item.veiculo ||
+        item.periodico ||
+        '';
+      const nomeCurso =
+        dt['NOME-DO-CURSO'] ||
+        dt['NOME-CURSO'] ||
+        item.curso ||
+        '';
+      const codInstituicao = dt['CODIGO-INSTITUICAO'] || '';
+      const codAgencia = dt['CODIGO-AGENCIA-FINANCIADORA'] || '';
+      const nomeAgencia = dt['NOME-DA-AGENCIA'] || dt['NOME-AGENCIA'] || '';
+      const numPaginas = dt['NUMERO-DE-PAGINAS'] || '';
+      const tipoOrientacao =
+        dt['TIPO-DE-ORIENTACAO-CONCLUIDA'] ||
+        dt['TIPO-DE-ORIENTACAO'] ||
+        'ORIENTADOR_PRINCIPAL';
+      const tipoOri = normalizeEnum(tipoOrientacao, new Set(['ORIENTADOR_PRINCIPAL', 'CO_ORIENTADOR']), 'ORIENTADOR_PRINCIPAL');
+      const tipoMestrado = normalizeEnum(db.TIPO, new Set(['ACADEMICO', 'PROFISSIONALIZANTE']), 'ACADEMICO');
+      const flagBolsa = normalizeEnum(dt['FLAG-BOLSA'], VALID_SIM_NAO, 'NAO');
+      const flagRelevancia = normalizeEnum(db['FLAG-RELEVANCIA'], VALID_SIM_NAO, 'NAO');
+      const pais = escapeXml(db.PAIS || 'Brasil');
+      const idioma = escapeXml(db.IDIOMA || 'Português');
+      const homePage = escapeXml(db['HOME-PAGE'] || db['HOME-PAGE-DO-TRABALHO'] || '');
+      const titulo = escapeXml(db.TITULO || db['TITULO-DO-TRABALHO'] || item.titulo || '');
+      const tituloIngles = escapeXml(db['TITULO-INGLES'] || db['TITULO-DO-TRABALHO-INGLES'] || '');
+      const ano = escapeXml(db.ANO || db['ANO-DO-TRABALHO'] || item.ano || '');
+      const doi = escapeXml(db.DOI || item.doi || '');
+
+      oriMestrado.push(
+        `<ORIENTACOES-CONCLUIDAS-PARA-MESTRADO SEQUENCIA-PRODUCAO="${seqAtual}">` +
+          `<DADOS-BASICOS-DE-ORIENTACOES-CONCLUIDAS-PARA-MESTRADO NATUREZA="${escapeXml(db.NATUREZA || 'DISSERTACAO_DE_MESTRADO')}" TIPO="${tipoMestrado}" TITULO="${titulo}" ANO="${ano}" PAIS="${pais}" IDIOMA="${idioma}" HOME-PAGE="${homePage}" FLAG-RELEVANCIA="${flagRelevancia}" DOI="${doi}" TITULO-INGLES="${tituloIngles}"/>` +
+          `<DETALHAMENTO-DE-ORIENTACOES-CONCLUIDAS-PARA-MESTRADO TIPO-DE-ORIENTACAO="${tipoOri}" NOME-DO-ORIENTADO="${escapeXml(nomeOrientado)}" CODIGO-INSTITUICAO="${escapeXml(codInstituicao)}" NOME-DA-INSTITUICAO="${escapeXml(nomeInstituicao)}" CODIGO-ORGAO="" NOME-ORGAO="" CODIGO-CURSO="" NOME-DO-CURSO="${escapeXml(nomeCurso)}" FLAG-BOLSA="${flagBolsa}" CODIGO-AGENCIA-FINANCIADORA="${escapeXml(codAgencia)}" NOME-DA-AGENCIA="${escapeXml(nomeAgencia)}" NUMERO-DE-PAGINAS="${escapeXml(numPaginas)}" NUMERO-ID-ORIENTADO="${escapeXml(idOrientado)}" NOME-DO-CURSO-INGLES=""/>` +
+        `</ORIENTACOES-CONCLUIDAS-PARA-MESTRADO>`
+      );
+    } else if (
+      rawTipo === 'ORIENTACOES-CONCLUIDAS-PARA-DOUTORADO' ||
+      rawTipo === 'ORIENTACAO-CONCLUIDA-DE-DOUTORADO'
+    ) {
+      seqAtual += 1;
+      const nomeOrientado =
+        dt['NOME-DO-ORIENTADO'] ||
+        dt['NOME-DO-ORIENTANDO'] ||
+        item.nomeOrientado ||
+        item.autoresDetalhados?.find((a) => a.funcao === 'Orientando')?.nome_autor ||
+        item.autoresDetalhados?.find((a) => !isCurriculumOwnerAuthor(a, envelope?.pesquisador))?.nome_autor ||
+        (autores.length > 1 ? (autores[1].nome || autores[1].nome_autor || autores[1]) : '') ||
+        '';
+      const idOrientado =
+        dt['NUMERO-ID-ORIENTADO'] ||
+        dt['NUMERO-ID-ORIENTANDO'] ||
+        item.idOrientado ||
+        '';
+      const nomeInstituicao =
+        dt['NOME-DA-INSTITUICAO'] ||
+        dt['NOME-INSTITUICAO'] ||
+        item.instituicao ||
+        item.veiculo ||
+        item.periodico ||
+        '';
+      const nomeCurso =
+        dt['NOME-DO-CURSO'] ||
+        dt['NOME-CURSO'] ||
+        item.curso ||
+        '';
+      const codInstituicao = dt['CODIGO-INSTITUICAO'] || '';
+      const codAgencia = dt['CODIGO-AGENCIA-FINANCIADORA'] || '';
+      const nomeAgencia = dt['NOME-DA-AGENCIA'] || dt['NOME-AGENCIA'] || '';
+      const numPaginas = dt['NUMERO-DE-PAGINAS'] || '';
+      const tipoOrientacao =
+        dt['TIPO-DE-ORIENTACAO-CONCLUIDA'] ||
+        dt['TIPO-DE-ORIENTACAO'] ||
+        'ORIENTADOR_PRINCIPAL';
+      const tipoOri = normalizeEnum(tipoOrientacao, new Set(['ORIENTADOR_PRINCIPAL', 'CO_ORIENTADOR']), 'ORIENTADOR_PRINCIPAL');
+      const flagBolsa = normalizeEnum(dt['FLAG-BOLSA'], VALID_SIM_NAO, 'NAO');
+      const flagRelevancia = normalizeEnum(db['FLAG-RELEVANCIA'], VALID_SIM_NAO, 'NAO');
+      const pais = escapeXml(db.PAIS || 'Brasil');
+      const idioma = escapeXml(db.IDIOMA || 'Português');
+      const homePage = escapeXml(db['HOME-PAGE'] || db['HOME-PAGE-DO-TRABALHO'] || '');
+      const titulo = escapeXml(db.TITULO || db['TITULO-DO-TRABALHO'] || item.titulo || '');
+      const tituloIngles = escapeXml(db['TITULO-INGLES'] || db['TITULO-DO-TRABALHO-INGLES'] || '');
+      const ano = escapeXml(db.ANO || db['ANO-DO-TRABALHO'] || item.ano || '');
+      const doi = escapeXml(db.DOI || item.doi || '');
+
+      oriDoutorado.push(
+        `<ORIENTACOES-CONCLUIDAS-PARA-DOUTORADO SEQUENCIA-PRODUCAO="${seqAtual}">` +
+          `<DADOS-BASICOS-DE-ORIENTACOES-CONCLUIDAS-PARA-DOUTORADO NATUREZA="${escapeXml(db.NATUREZA || 'TESE_DE_DOUTORADO')}" TITULO="${titulo}" ANO="${ano}" PAIS="${pais}" IDIOMA="${idioma}" HOME-PAGE="${homePage}" FLAG-RELEVANCIA="${flagRelevancia}" DOI="${doi}" TITULO-INGLES="${tituloIngles}"/>` +
+          `<DETALHAMENTO-DE-ORIENTACOES-CONCLUIDAS-PARA-DOUTORADO TIPO-DE-ORIENTACAO="${tipoOri}" NOME-DO-ORIENTADO="${escapeXml(nomeOrientado)}" CODIGO-INSTITUICAO="${escapeXml(codInstituicao)}" NOME-DA-INSTITUICAO="${escapeXml(nomeInstituicao)}" CODIGO-ORGAO="" NOME-ORGAO="" CODIGO-CURSO="" NOME-DO-CURSO="${escapeXml(nomeCurso)}" FLAG-BOLSA="${flagBolsa}" CODIGO-AGENCIA-FINANCIADORA="${escapeXml(codAgencia)}" NOME-DA-AGENCIA="${escapeXml(nomeAgencia)}" NUMERO-DE-PAGINAS="${escapeXml(numPaginas)}" NUMERO-ID-ORIENTADO="${escapeXml(idOrientado)}" NOME-DO-CURSO-INGLES=""/>` +
+        `</ORIENTACOES-CONCLUIDAS-PARA-DOUTORADO>`
+      );
+    } else if (
+      rawTipo === 'ORIENTACOES-CONCLUIDAS-PARA-POS-DOUTORADO' ||
+      rawTipo === 'ORIENTACAO-CONCLUIDA-DE-POS-DOUTORADO'
+    ) {
+      seqAtual += 1;
+      const nomeOrientado =
+        dt['NOME-DO-ORIENTADO'] ||
+        dt['NOME-DO-ORIENTANDO'] ||
+        item.nomeOrientado ||
+        item.autoresDetalhados?.find((a) => a.funcao === 'Orientando')?.nome_autor ||
+        item.autoresDetalhados?.find((a) => !isCurriculumOwnerAuthor(a, envelope?.pesquisador))?.nome_autor ||
+        (autores.length > 1 ? (autores[1].nome || autores[1].nome_autor || autores[1]) : '') ||
+        '';
+      const idOrientado =
+        dt['NUMERO-ID-ORIENTADO'] ||
+        dt['NUMERO-ID-ORIENTANDO'] ||
+        item.idOrientado ||
+        '';
+      const nomeInstituicao =
+        dt['NOME-DA-INSTITUICAO'] ||
+        dt['NOME-INSTITUICAO'] ||
+        item.instituicao ||
+        item.veiculo ||
+        item.periodico ||
+        '';
+      const nomeCurso =
+        dt['NOME-DO-CURSO'] ||
+        dt['NOME-CURSO'] ||
+        item.curso ||
+        '';
+      const codInstituicao = dt['CODIGO-INSTITUICAO'] || '';
+      const codAgencia = dt['CODIGO-AGENCIA-FINANCIADORA'] || '';
+      const nomeAgencia = dt['NOME-DA-AGENCIA'] || dt['NOME-AGENCIA'] || '';
+      const numPaginas = dt['NUMERO-DE-PAGINAS'] || '';
+      const tipoOrientacao =
+        dt['TIPO-DE-ORIENTACAO-CONCLUIDA'] ||
+        dt['TIPO-DE-ORIENTACAO'] ||
+        'ORIENTADOR_PRINCIPAL';
+      const flagBolsa = normalizeEnum(dt['FLAG-BOLSA'], VALID_SIM_NAO, 'NAO');
+      const flagRelevancia = normalizeEnum(db['FLAG-RELEVANCIA'], VALID_SIM_NAO, 'NAO');
+      const pais = escapeXml(db.PAIS || 'Brasil');
+      const idioma = escapeXml(db.IDIOMA || 'Português');
+      const homePage = escapeXml(db['HOME-PAGE'] || db['HOME-PAGE-DO-TRABALHO'] || '');
+      const titulo = escapeXml(db.TITULO || db['TITULO-DO-TRABALHO'] || item.titulo || '');
+      const tituloIngles = escapeXml(db['TITULO-INGLES'] || db['TITULO-DO-TRABALHO-INGLES'] || '');
+      const ano = escapeXml(db.ANO || db['ANO-DO-TRABALHO'] || item.ano || '');
+      const doi = escapeXml(db.DOI || item.doi || '');
+
+      oriPosDoutorado.push(
+        `<ORIENTACOES-CONCLUIDAS-PARA-POS-DOUTORADO SEQUENCIA-PRODUCAO="${seqAtual}">` +
+          `<DADOS-BASICOS-DE-ORIENTACOES-CONCLUIDAS-PARA-POS-DOUTORADO NATUREZA="${escapeXml(db.NATUREZA || '')}" TITULO="${titulo}" ANO="${ano}" PAIS="${pais}" IDIOMA="${idioma}" HOME-PAGE="${homePage}" FLAG-RELEVANCIA="${flagRelevancia}" DOI="${doi}" TITULO-INGLES="${tituloIngles}"/>` +
+          `<DETALHAMENTO-DE-ORIENTACOES-CONCLUIDAS-PARA-POS-DOUTORADO TIPO-DE-ORIENTACAO="${escapeXml(tipoOrientacao)}" NOME-DO-ORIENTADO="${escapeXml(nomeOrientado)}" CODIGO-INSTITUICAO="${escapeXml(codInstituicao)}" NOME-DA-INSTITUICAO="${escapeXml(nomeInstituicao)}" CODIGO-ORGAO="" NOME-ORGAO="" CODIGO-CURSO="" NOME-DO-CURSO="${escapeXml(nomeCurso)}" FLAG-BOLSA="${flagBolsa}" CODIGO-AGENCIA-FINANCIADORA="${escapeXml(codAgencia)}" NOME-DA-AGENCIA="${escapeXml(nomeAgencia)}" NUMERO-DE-PAGINAS="${escapeXml(numPaginas)}" NUMERO-ID-ORIENTADO="${escapeXml(idOrientado)}" NOME-DO-CURSO-INGLES=""/>` +
+        `</ORIENTACOES-CONCLUIDAS-PARA-POS-DOUTORADO>`
+      );
+    } else if (
+      rawTipo === 'OUTRAS-ORIENTACOES-CONCLUIDAS' ||
+      isOrientacaoTipo(rawTipo)
+    ) {
+      seqAtual += 1;
+      const nomeOrientado =
+        dt['NOME-DO-ORIENTADO'] ||
+        dt['NOME-DO-ORIENTANDO'] ||
+        item.nomeOrientado ||
+        item.autoresDetalhados?.find((a) => a.funcao === 'Orientando')?.nome_autor ||
+        item.autoresDetalhados?.find((a) => !isCurriculumOwnerAuthor(a, envelope?.pesquisador))?.nome_autor ||
+        (autores.length > 1 ? (autores[1].nome || autores[1].nome_autor || autores[1]) : '') ||
+        '';
+      const idOrientado =
+        dt['NUMERO-ID-ORIENTADO'] ||
+        dt['NUMERO-ID-ORIENTANDO'] ||
+        item.idOrientado ||
+        '';
+      const nomeInstituicao =
+        dt['NOME-DA-INSTITUICAO'] ||
+        dt['NOME-INSTITUICAO'] ||
+        item.instituicao ||
+        item.veiculo ||
+        item.periodico ||
+        '';
+      const nomeCurso =
+        dt['NOME-DO-CURSO'] ||
+        dt['NOME-CURSO'] ||
+        item.curso ||
+        '';
+      const codInstituicao = dt['CODIGO-INSTITUICAO'] || '';
+      const codAgencia = dt['CODIGO-AGENCIA-FINANCIADORA'] || '';
+      const nomeAgencia = dt['NOME-DA-AGENCIA'] || dt['NOME-AGENCIA'] || '';
+      const numPaginas = dt['NUMERO-DE-PAGINAS'] || '';
+      const tipoOrientacao =
+        dt['TIPO-DE-ORIENTACAO-CONCLUIDA'] ||
+        dt['TIPO-DE-ORIENTACAO'] ||
+        'ORIENTADOR_PRINCIPAL';
+      const flagBolsa = normalizeEnum(dt['FLAG-BOLSA'], VALID_SIM_NAO, 'NAO');
+      const flagRelevancia = normalizeEnum(db['FLAG-RELEVANCIA'], VALID_SIM_NAO, 'NAO');
+      const pais = escapeXml(db.PAIS || 'Brasil');
+      const idioma = escapeXml(db.IDIOMA || 'Português');
+      const homePage = escapeXml(db['HOME-PAGE'] || db['HOME-PAGE-DO-TRABALHO'] || '');
+      const titulo = escapeXml(db.TITULO || db['TITULO-DO-TRABALHO'] || item.titulo || '');
+      const tituloIngles = escapeXml(db['TITULO-INGLES'] || db['TITULO-DO-TRABALHO-INGLES'] || '');
+      const ano = escapeXml(db.ANO || db['ANO-DO-TRABALHO'] || item.ano || '');
+      const doi = escapeXml(db.DOI || item.doi || '');
+
+      const validNaturezaOutras = new Set([
+        'MONOGRAFIA_DE_CONCLUSAO_DE_CURSO_APERFEICOAMENTO_E_ESPECIALIZACAO',
+        'TRABALHO_DE_CONCLUSAO_DE_CURSO_GRADUACAO',
+        'INICIACAO_CIENTIFICA',
+        'ORIENTACAO-DE-OUTRA-NATUREZA',
+      ]);
+      let natOutras = normalizeEnum(db.NATUREZA, validNaturezaOutras, '');
+      if (!natOutras) {
+        const rawNat = String(item.natureza || db.NATUREZA || '').toUpperCase();
+        if (rawNat.includes('APERFEICOAMENTO') || rawNat.includes('ESPECIALIZACAO') || rawNat.includes('MONOGRAFIA')) {
+          natOutras = 'MONOGRAFIA_DE_CONCLUSAO_DE_CURSO_APERFEICOAMENTO_E_ESPECIALIZACAO';
+        } else if (rawNat.includes('INICIACAO') || rawNat.includes('CIENTIFICA')) {
+          natOutras = 'INICIACAO_CIENTIFICA';
+        } else if (rawNat.includes('GRADUACAO') || rawNat.includes('TCC')) {
+          natOutras = 'TRABALHO_DE_CONCLUSAO_DE_CURSO_GRADUACAO';
+        } else {
+          natOutras = 'TRABALHO_DE_CONCLUSAO_DE_CURSO_GRADUACAO';
+        }
+      }
+
+      oriOutras.push(
+        `<OUTRAS-ORIENTACOES-CONCLUIDAS SEQUENCIA-PRODUCAO="${seqAtual}">` +
+          `<DADOS-BASICOS-DE-OUTRAS-ORIENTACOES-CONCLUIDAS NATUREZA="${natOutras}" TIPO="${escapeXml(db.TIPO || '')}" TITULO="${titulo}" ANO="${ano}" PAIS="${pais}" IDIOMA="${idioma}" HOME-PAGE="${homePage}" FLAG-RELEVANCIA="${flagRelevancia}" DOI="${doi}" TITULO-INGLES="${tituloIngles}" TIPO-INGLES="${escapeXml(db['TIPO-INGLES'] || '')}"/>` +
+          `<DETALHAMENTO-DE-OUTRAS-ORIENTACOES-CONCLUIDAS NOME-DO-ORIENTADO="${escapeXml(nomeOrientado)}" CODIGO-INSTITUICAO="${escapeXml(codInstituicao)}" NOME-DA-INSTITUICAO="${escapeXml(nomeInstituicao)}" CODIGO-ORGAO="" NOME-ORGAO="" CODIGO-CURSO="" NOME-DO-CURSO="${escapeXml(nomeCurso)}" FLAG-BOLSA="${flagBolsa}" CODIGO-AGENCIA-FINANCIADORA="${escapeXml(codAgencia)}" NOME-DA-AGENCIA="${escapeXml(nomeAgencia)}" TIPO-DE-ORIENTACAO-CONCLUIDA="${escapeXml(tipoOrientacao)}" NUMERO-DE-PAGINAS="${escapeXml(numPaginas)}" NUMERO-ID-ORIENTADO="${escapeXml(idOrientado)}" NOME-DO-CURSO-INGLES=""/>` +
+        `</OUTRAS-ORIENTACOES-CONCLUIDAS>`
+      );
     }
   });
 
@@ -474,9 +720,20 @@ export function buildLattesExportFromSelected(envelope, selectedRawItems) {
     producaoTecnicaXml = `<PRODUCAO-TECNICA>${tecParts.join('')}</PRODUCAO-TECNICA>`;
   }
 
+  const orientacoesConcluidasParts = [
+    ...oriMestrado,
+    ...oriDoutorado,
+    ...oriPosDoutorado,
+    ...oriOutras,
+  ];
   let outraProducaoXml = '';
-  if (outraDemaisTrabalhos.length > 0) {
-    outraProducaoXml = `<OUTRA-PRODUCAO>${outraDemaisTrabalhos.join('')}</OUTRA-PRODUCAO>`;
+  const orientacoesConcluidasXml =
+    orientacoesConcluidasParts.length > 0
+      ? `<ORIENTACOES-CONCLUIDAS>${orientacoesConcluidasParts.join('')}</ORIENTACOES-CONCLUIDAS>`
+      : '';
+  const demaisTrabalhosXml = outraDemaisTrabalhos.join('');
+  if (orientacoesConcluidasXml || demaisTrabalhosXml) {
+    outraProducaoXml = `<OUTRA-PRODUCAO>${orientacoesConcluidasXml}${demaisTrabalhosXml}</OUTRA-PRODUCAO>`;
   }
 
   const xmlResultadoString =
