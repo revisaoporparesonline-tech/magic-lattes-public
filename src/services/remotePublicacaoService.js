@@ -9,7 +9,8 @@ export async function postRemotePublicacao({ apiUrl, bearerToken, payload }) {
   };
 
   if (bearerToken && bearerToken.trim()) {
-    headers.Authorization = `Bearer ${bearerToken.trim()}`;
+    const token = bearerToken.trim().replace(/^Bearer\s+/i, '');
+    headers.Authorization = `Bearer ${token}`;
   }
 
   const response = await fetch(apiUrl.trim(), {
